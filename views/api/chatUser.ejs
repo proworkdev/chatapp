@@ -1,0 +1,93 @@
+<!-- views/profile.ejs -->
+<%- contentFor('content') %>
+<!doctype html>
+<html>
+<head>
+    <title>TestJob</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+   
+    <style>
+        body        { padding-top:80px; word-wrap:break-word; }
+    </style>
+    <script
+			  src="https://code.jquery.com/jquery-3.3.1.min.js"
+			  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+              crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+</head>
+<body>
+<div class="container">
+<strong> Logged in as </strong>
+
+
+    <div class="container">
+    <br>
+    <div class="jumbotron">
+        <h1 class="dispaly-4">Start Chatting</h1>
+
+    <div class="row" id="chat">
+    <h3><span class="fa fa-user"></span> Chat </h3>
+    <% messages.forEach((message) => { %>
+            <div class ="sender">
+                <strong class="sender">Me</strong>:  <%= message.message %><br>
+            </div>
+       <% }) %>
+     
+    </div>
+        <br>
+       <textarea id="txtMessage" class="form-control" placeholder="Message"></textarea>
+        <br>
+        <button id="send" class="btn btn-success">Send</button>
+    </div>    
+</div>
+
+</div>
+</body>
+</html>
+
+<script>
+    io.connect();
+    
+    $(() => {
+       // getchat(chats)
+       var socket = io();
+        $("#send").click(() => { 
+            postChat();
+          })
+          $('#txtMessage').keydown(function(e) {
+            if(e.which == 10 || e.which == 13) {
+               postChat();
+            }
+                
+            });
+        function postChat(){
+            var chatMessage = {
+                receiverId: $("#receiverid").val(),
+                senderId: $("#current_userid").val(),
+                message: $("#txtMessage").val()
+            }
+            socket.emit('message', chatMessage);
+            $("#txtMessage").val("");
+        }
+        socket.on("receiveMessage", (data) => {
+            console.log("socket emitted .......");
+            console.log($("#current_userid").val().toString(), data.senderId.toString());
+            let receiver = $('#receiver_username').val();
+            let sender = $('#current_username').val();
+            
+            if($("#current_userid").val().toString() == data.senderId.toString()) {
+                $("#chat").append(`<div class ="sender">
+                <strong class="sender">Me</strong>: ${data.message}<br>
+            </div>`);
+            }
+            if($("#current_userid").val().toString() == data.receiverId.toString()){
+                $("#chat").append(`<div class ="sender">
+                <strong class="sender">${receiver}</strong>: ${data.message}<br>
+            </div>`);
+            }
+        });
+    })
+    
+</script>
