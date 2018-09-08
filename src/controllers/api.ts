@@ -13,16 +13,24 @@ import { Response, Request, NextFunction } from "express";
  * GET /api
  * List of API examples.
  */
+
 export let getApi = (req: Request, res: Response) => {
   //let userid = req.user.id;
   var userid =  req.session.passport.user;
-  User.findOne({ _id: userid }, (err, existingUser: any) => {
-  res.render("api/index", {
-    title: "API Examples",
-    user: existingUser
-  });
-})
+  if(userid){
+    User.findOne({ _id: userid }, (err, existingUser: any) => {
+      res.render("api/index", {
+        title: "API Examples",
+        user: existingUser
+      });
+    })
+  }
+  else{
+    res.redirect("/login")
+  }
 };
+
+/**for Test */
 
 export let getApis = (req: Request, res: Response) => {
   console.log("test");
